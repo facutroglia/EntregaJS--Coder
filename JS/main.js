@@ -3,7 +3,7 @@ alert("Bienvenido a cajeros BancoHouse")
 let EfectivoDisponible = 25000
 
 while(EfectivoDisponible > 0){ 
-    const confirmacion = prompt("Desea realizar un retiro? (si/no)")
+    let confirmacion = prompt("Desea realizar un retiro? (si/no)")
     
     if (confirmacion == "si"){
         let Retiro =Number(prompt("Ingrese el monto a retirar "))

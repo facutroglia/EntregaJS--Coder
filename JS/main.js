@@ -1,117 +1,104 @@
-// simulador de compras
-alert("Bienvenido al simulador de compras");
-let nombre;
+const precioXHora = 12000;
+const precioXHoraPico = 16000;
 
-function saludar() {
-  nombre = prompt("Ingrese su nombre");
-  alert("Hola, " + nombre + "! Bienvenido al simulador de compras.");
-  return nombre;
-}
+function pedirNumero(mensaje, minimo, maximo) {
+  let numero = parseInt(prompt(mensaje));
 
-let producto;
-let cantidad;
-
-function comprar() {
-  do {
-    producto = parseInt(
-      prompt(
-        "Ingrese el producto que desea comprar:  \n1. Camiseta - $2000 \n2. Pantalón - $4000 \n3. Zapatos - $6000 \n4. Accesorios - $1000",
-      ),
+  while (isNaN(numero) || numero < minimo || numero > maximo) {
+    alert(
+      "Dato inválido. Ingresá un número entre " + minimo + " y " + maximo + ".",
     );
-    if (isNaN(producto) || producto < 1 || producto > 4) {
-      alert("Producto no válido");
-    }
-  } while (isNaN(producto) || producto < 1 || producto > 4);
-  cantidad = parseInt(prompt("Ingrese la cantidad que desea comprar:"));
-  switch (producto) {
-    case 1:
-      producto = "Camiseta";
-      precioTotal = 2000 * cantidad;
-      alert("El precio total de su compra es: $" + precioTotal);
-      break;
+    numero = parseInt(prompt(mensaje));
+  }
+  return numero;
+}
 
-    case 2:
-      producto = "Pantalón";
-      precioTotal = 4000 * cantidad;
-      alert("El precio total de su compra es: $" + precioTotal);
-      break;
-    case 3:
-      producto = "Zapatos";
-      precioTotal = 6000 * cantidad;
-      alert("El precio total de su compra es: $" + precioTotal);
-      break;
-    case 4:
-      producto = "Accesorios";
-      precioTotal = 1000 * cantidad;
-      alert("El precio total de su compra es: $" + precioTotal);
-      break;
-    default:
-      alert("Producto no válido");
-      return;
+const calcularPrecio = function (horaInicio, cantidadHoras) {
+  let total = 0;
+
+  for (let i = 0; i < cantidadHoras; i++) {
+    let horaActual = horaInicio + i;
+
+    if (horaActual >= 19) {
+      total = total + precioXHoraPico;
+    } else {
+      total = total + precioXHora;
+    }
   }
-  return precioTotal;
-}
-function metodoPago(precioTotal) {
-  metodo = parseFloat(
-    prompt(
-      "Ingrese el metodo de pago que desea utilizar:\n1- Efectivo (10% de descuento) \n2- Transeferencia (5% de recargo) \n3- tarjeta de credito (10% de recargo)",
-    ),
-  );
-  switch (metodo) {
-    case 1:
-      metodo = "efectivo (10% de descuento)";
-      precioTotal = precioTotal - precioTotal * 0.1;
-      alert("El precio total con descuento es: $" + precioTotal);
-      break;
-    case 2:
-      metodo = "transferencia (5% de recargo)";
-      precioTotal = precioTotal + precioTotal * 0.05;
-      alert("El precio total con recargo es: $" + precioTotal);
-      break;
-    case 3:
-      metodo = "tarjeta de credito (10% de recargo)";
-      precioTotal = precioTotal + precioTotal * 0.1;
-      alert("El precio total con recargo es: $" + precioTotal);
-      break;
-    default:
-      alert("Método de pago no válido");
-      return;
-  }
-  return precioTotal;
-}
-const MostrarDeCompra = (
-  usuario,
-  producto,
-  cantidad,
-  precioTotal,
-  metodoPago,
-) => {
-  alert(
-    "Detalle de la compra: \nNombre: " +
-      usuario +
-      "\nProducto: " +
-      producto +
-      "\nCantidad: " +
-      cantidad +
-      "\nPrecio total: $" +
-      precioTotal +
-      "\nMétodo de pago: " +
-      metodoPago,
-  );
-  console.log(
-    "Detalle de la compra: \nNombre: " +
-      usuario +
-      "\nProducto: " +
-      producto +
-      "\nCantidad: " +
-      cantidad +
-      "\nPrecio total: $" +
-      precioTotal +
-      "\nMétodo de pago: " +
-      metodoPago,
-  );
+
+  return total;
 };
-saludar();
-comprar();
-metodoPago(precioTotal);
-MostrarDeCompra(nombre, producto, cantidad, precioTotal, metodo);
+
+console.log(calcularPrecio(14, 2));
+
+const aplicarDescuento = (precio, porcentaje) =>
+  precio - (precio * porcentaje) / 100;
+
+function mostrarResumen(nombre, cancha, horaInicio, cantidadHoras, total) {
+  let horaFin = horaInicio + cantidadHoras;
+  let mensaje =
+    "✅ Turno confirmado\n" +
+    "Jugador: " +
+    nombre +
+    "\n" +
+    "Cancha: " +
+    cancha +
+    "\n" +
+    "Horario: " +
+    horaInicio +
+    ":00 a " +
+    horaFin +
+    ":00 hs\n" +
+    "Total a pagar: $" +
+    total;
+
+  alert(mensaje);
+  console.log(mensaje);
+}
+
+alert("¡Bienvenido al simulador de turnos de pádel! 🎾");
+
+let seguir = true;
+let turnosReservados = 0;
+let recaudacion = 0;
+
+while (seguir) {
+  let nombre = prompt("¿Cuál es tu nombre?");
+  while (nombre === null || nombre.trim() === "") {
+    alert("Tenés que ingresar un nombre.");
+    nombre = prompt("¿Cuál es tu nombre?");
+  }
+
+  let cancha = pedirNumero("¿Qué cancha querés reservar? (1, 2 o 3)", 1, 3);
+  let horaInicio = pedirNumero(
+    "¿A qué hora querés empezar? ( desde 14hs a 22hs )",
+    14,
+    22,
+  );
+
+  let maximoHoras = 23 - horaInicio;
+  let cantidadHoras = pedirNumero(
+    "¿Cuántas horas querés jugar? (1 a " + maximoHoras + " horas)",
+    1,
+    maximoHoras,
+  );
+
+  let total = calcularPrecio(horaInicio, cantidadHoras);
+
+  if (cantidadHoras >= 2) {
+    total = aplicarDescuento(total, 10);
+    alert("¡Tenés 10% de descuento por reservar 2 horas o más!");
+  }
+
+  mostrarResumen(nombre, cancha, horaInicio, cantidadHoras, total);
+
+  turnosReservados++;
+  recaudacion = recaudacion + total;
+
+  seguir = confirm("¿Querés reservar otro turno?");
+}
+
+console.log("===== CIERRE =====");
+console.log("Turnos reservados: " + turnosReservados);
+console.log("Recaudación total: $" + recaudacion);
+alert("Gracias por usar el simulador. Turnos reservados: " + turnosReservados);

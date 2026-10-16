@@ -37,7 +37,7 @@ const aplicarDescuento = (precio, porcentaje) =>
 function mostrarResumen(nombre, cancha, horaInicio, cantidadHoras, total) {
   let horaFin = horaInicio + cantidadHoras;
   let mensaje =
-    "✅ Turno confirmado\n" +
+    "Turno confirmado\n" +
     "Jugador: " +
     nombre +
     "\n" +
@@ -56,7 +56,7 @@ function mostrarResumen(nombre, cancha, horaInicio, cantidadHoras, total) {
   console.log(mensaje);
 }
 
-alert("¡Bienvenido al simulador de turnos de pádel! 🎾");
+alert("¡Bienvenido al simulador de turnos de pádel! ");
 
 let seguir = true;
 let turnosReservados = 0;

@@ -1,10 +1,18 @@
 const precioXHora = 12000;
 const precioXHoraPico = 16000;
 
-const canchasReservadas = [];
-const horariosDeInicio = [];
-const horariosDeFin = [];
-const nombresReservas = [];
+const reservas = [];
+class Reserva {
+  constructor(nombre, cancha, horaInicio, horaFin, precio) {
+    this.nombre = nombre;
+    this.cancha = cancha;
+    this.horaInicio = horaInicio;
+    this.horaFin = horaFin;
+    this.precio = precio;
+  }
+  aplicarDescuento = () =>
+    (this.precio = this.precio - (this.precio * 10) / 100);
+}
 
 const pedirNumero = (mensaje, minimo, maximo) => {
   let numero = parseInt(prompt(mensaje));
@@ -34,18 +42,35 @@ const calcularPrecio = (horaInicio, cantidadHoras) => {
   return total;
 };
 
-const aplicarDescuento = (precio, porcentaje) =>
-  precio - (precio * porcentaje) / 100;
-
+const validarReserva = (cancha, horaInicio, horaFin) => {
+  let reservada = false;
+  for (let i = 0; i < reservas.length; i++) {
+    if (reservas[i].cancha === cancha) {
+      if (
+        horaInicio < reservas[i].horaFin &&
+        horaFin > reservas[i].horaInicio
+      ) {
+        reservada = true;
+        break;
+      }
+    }
+  }
+  return reservada;
+};
 const modificarReserva = (nombre) => {
-  const i = nombresReservas.indexOf(nombre);
+  for (let j = 0; j < reservas.length; j++) {
+    if (reservas[j].nombre === nombre) {
+      i = j;
+      break;
+    }
+  }
   if (i === -1) {
     alert("no se encontro ninguna reserva a nombre de " + nombre);
     return;
   }
-  const canchaActual = canchasReservadas[i];
-  const inicio = horariosDeInicio[i];
-  const fin = horariosDeFin[i];
+  const canchaActual = reservas[i].cancha;
+  const inicio = reservas[i].horaInicio;
+  const fin = reservas[i].horaFin;
 
   const nuevaCancha = pedirNumero(
     "Tu reserva es en la cancha " +
@@ -64,7 +89,7 @@ const modificarReserva = (nombre) => {
   } else if (validarReserva(nuevaCancha, inicio, fin)) {
     alert("La cancha " + nuevaCancha + " está ocupada en ese horario.");
   } else {
-    canchasReservadas.splice(i, 1, nuevaCancha);
+    reservas[i].cancha = nuevaCancha;
     alert(
       "Listo, " +
         nombre +
@@ -77,18 +102,6 @@ const modificarReserva = (nombre) => {
   }
 };
 
-const validarReserva = (cancha, horaInicio, horaFin) => {
-  let reservada = false;
-  for (let i = 0; i < canchasReservadas.length; i++) {
-    if (canchasReservadas[i] === cancha) {
-      if (horaInicio < horariosDeFin[i] && horaFin > horariosDeInicio[i]) {
-        reservada = true;
-        break;
-      }
-    }
-  }
-  return reservada;
-};
 alert("¡Bienvenido al simulador de turnos de pádel! ");
 
 let seguir = true;
@@ -100,7 +113,7 @@ let cantidadHoras;
 let nombre;
 
 while (seguir) {
-  nombre = prompt("¿Cuál es tu nombre?");
+  nombre = prompt("Ingresa tu nombre para reservar");
   while (nombre === null || nombre.trim() === "" || !isNaN(nombre)) {
     alert("Tenés que ingresar un nombre.");
     nombre = prompt("¿Cuál es tu nombre?");
@@ -124,6 +137,8 @@ while (seguir) {
     );
 
     let horaFinal = cantidadHoras + horaInicio;
+    let total = calcularPrecio(horaInicio, cantidadHoras);
+    turnosReservados++;
 
     if (validarReserva(cancha, horaInicio, horaFinal)) {
       alert(
@@ -136,11 +151,14 @@ while (seguir) {
           ":00 esta reservada. \nPruebe en un horario diferente a ese.",
       );
     } else {
+      const reserva = new Reserva(nombre, cancha, horaInicio, horaFinal, total);
+      if (cantidadHoras >= 2) {
+        total = reserva.aplicarDescuento();
+
+        alert("¡Tenés 10% de descuento por reservar 2 horas o más!");
+        reservas.push(reserva);
+      }
       datosValidos = true;
-      canchasReservadas.push(cancha);
-      horariosDeInicio.push(horaInicio);
-      horariosDeFin.push(horaFinal);
-      nombresReservas.push(nombre);
       let confirmarReserva = confirm(
         "confirmas la reserva en la cancha " +
           cancha +
@@ -150,44 +168,32 @@ while (seguir) {
           horaFinal +
           ":00 ?",
       );
+      recaudacion = recaudacion + total;
       if (!confirmarReserva) {
-        canchasReservadas.pop();
-        horariosDeInicio.pop();
-        horariosDeFin.pop();
-        nombresReservas.pop();
-
+        turnosReservados--;
+        recaudacion = recaudacion - total;
+        reservas.pop();
         alert("Reserva cancelada.");
-        datosValidos = false;
+      } else {
+        alert(
+          "Turno confirmado\n" +
+            "Jugador: " +
+            nombre +
+            "\n" +
+            "Cancha: " +
+            cancha +
+            "\n" +
+            "Horario: " +
+            horaInicio +
+            ":00 a " +
+            horaFinal +
+            ":00 hs\n" +
+            "Total a pagar: $" +
+            total,
+        );
       }
     }
   }
-
-  let total = calcularPrecio(horaInicio, cantidadHoras);
-  if (cantidadHoras >= 2) {
-    total = aplicarDescuento(total, 10);
-    alert("¡Tenés 10% de descuento por reservar 2 horas o más!");
-  }
-
-  turnosReservados++;
-  recaudacion = recaudacion + total;
-  let horaFin = horaInicio + cantidadHoras;
-
-  alert(
-    "Turno confirmado\n" +
-      "Jugador: " +
-      nombre +
-      "\n" +
-      "Cancha: " +
-      cancha +
-      "\n" +
-      "Horario: " +
-      horaInicio +
-      ":00 a " +
-      horaFin +
-      ":00 hs\n" +
-      "Total a pagar: $" +
-      total,
-  );
   let modificar = confirm("Queres modificar alguna reserva?");
 
   while (modificar) {
@@ -203,18 +209,11 @@ console.log("===== CIERRE =====");
 console.log("Turnos reservados: " + turnosReservados);
 console.log("Recaudación total: $" + recaudacion);
 console.log("===== Reservas =====");
-let indice = 0;
-for (const canchaReservada of canchasReservadas) {
+for (const reserva of reservas) {
   console.log(
-    "Cancha " +
-      canchaReservada +
-      " reservada desde las " +
-      horariosDeInicio[indice] +
-      ":00 a " +
-      horariosDeFin[indice] +
-      ":00",
+    `cancha N°${reserva.cancha} reservada desde ${reserva.horaInicio}:00 hasta ${reserva.horaFin}:00 a nombre de: ${reserva.nombre}\nprecio a abonar: $${
+      reserva.precio
+    }`,
   );
-
-  indice++;
 }
 alert("Gracias por usar el simulador. Turnos reservados: " + turnosReservados);
